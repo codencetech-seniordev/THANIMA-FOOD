@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Flavors Restaurant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fff;
+        }
+
+        /* Navigation */
+        nav {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff4500 100%);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 5px 25px rgba(255, 69, 0, 0.4);
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 3.5rem;
+            padding: 0 2rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.15rem;
+            transition: all 0.3s ease;
+            padding: 0.8rem 0;
+            position: relative;
+            letter-spacing: 0.5px;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: white;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        nav a:hover {
+            transform: translateY(-3px);
+            text-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Cart Button */
+        .cart-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff4500 100%);
+            color: white;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(255, 69, 0, 0.5);
+            transition: all 0.3s;
+            z-index: 999;
+            border: none;
+        }
+
+        .cart-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(255, 69, 0, 0.6);
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: white;
+            color: #ff4500;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 800;
+            border: 3px solid #ff4500;
+        }
+
+        /* Cart Modal */
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1001;
+            animation: fadeIn 0.3s;
+        }
+
+        .cart-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-content {
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            border-radius: 25px;
+            overflow: hidden;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .cart-header {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff4500 100%);
+            color: white;
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .close-cart {
+            background: white;
+            color: #ff4500;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .close-cart:hover {
+            transform: rotate(90deg);
+            background: #ffe8dc;
+        }
+
+        .cart-items {
+            padding: 2rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 2px solid #ffe8dc;
+            animation: fadeIn 0.3s;
+        }
+
+        .cart-item-info h4 {
+            color: #ff4500;
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .cart-item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .qty-btn {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff4500 100%);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .qty-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .qty-display {
+            font-weight: 700;
+            font-size: 1.1rem;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .remove-item {
+            background: #ff4500;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .remove-item:hover {
+            background: #ff6b35;
+            transform: scale(1.05);
+        }
+
+        .cart-footer {
+            background: #fff5f0;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+            font-size: 1.2rem;
+        }
+
+        .send-order-btn {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff4500 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(255, 69, 0, 0.3);
+        }
+
+        .send-order-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 69, 0, 0.5);
+        }
+
+        .send-order-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 85vh;
+            background: linear-gradient(rgba(255, 69, 0, 0.35), rgba(255, 107, 53, 0.35)), 
+                        url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600') center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            animation: rotate 25s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            animation: zoomIn 1.2s ease-out;
+            padding: 2rem;
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .hero-content h1 {
+            font-size: 4.5rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.7);
+            animation: pulse 3s ease-in-out infinite;
+            font-weight: 800;
+            letter-spacing: 3px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .hero-content p {
+            font-size: 2rem;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        /* About Section */
+        .about {
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, #fff5f0 0%, #ffe8dc 100%);
+            text-align: center;
+            animation: fadeIn 1s;
+            position: relative;
+        }
+
+        .about::before {
+            content: '🍽️';
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            font-size: 4rem;
+            opacity: 0.1;
+        }
+
+        .about::after {
+            content: '🍽️';
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            font-size: 4rem;
+            opacity: 0.1;
+        }
+
+        .about h2 {
+            font-size: 3.5rem;
+            margin-bottom: 2.5rem;
+            color: #ff4500;
+            animation: slideInLeft 1s ease-out;
+            font-weight: 800;
+            position: relative;
+        }
+
+        .about h2::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b35, #ff4500);
+            border-radius: 2px;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .about p {
+            max-width: 950px;
+            margin: 0 auto;
+            font-size: 1.35rem;
+            line-height: 2.2;
+            color: #555;
+            font-weight: 400;
+        }
+
+        /* Cuisines Section */
+        .cuisines {
+            padding: 6rem 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #fff;
+        }
+
+        .cuisines h2 {
+            text-align: center;
+            font-size: 3.5rem;
+            margin-bottom: 5rem;
+            color: #ff4500;
+            animation: fadeIn 1s;
+            font-weight: 800;
+            position: relative;
+        }
+
+        .cuisines h2::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 5px;
+            background: linear-gradient(90deg, #ff6b35, #ff4500);
+            border-radius: 3px;
+        }
+
+        .cuisine-card {
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            margin-bottom: 5rem;
+            box-shadow: 0 20px 60px rgba(255, 69, 0, 0.15);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 0.8s ease-out;
+            border: 3px solid #ffe8dc;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(60px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .cuisine-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 30px 80px rgba(255, 69, 0, 0.3);
+            border-color: #ff6b35;
+        }
+
+        .cuisine-header {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff4500 100%);
+            color: white;
+            padding: 3.5rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cuisine-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.25), transparent);
+            animation: shine 4s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .cuisine-header h3 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .cuisine-content {
+            padding: 4rem 3rem;
+            background: linear-gradient(to bottom, #fff 0%, #fffaf7 100%);
+        }
+
+        .cuisine-content > p {
+            font-size: 1.25rem;
+            margin-bottom: 3.5rem;
+            color: #666;
+            text-align: center;
+            max-width: 950px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 2;
+            font-weight: 400;
+        }
+
+        .dishes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+        }
+
+        .dish-item {
+            background: #fff;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: 3px solid #ffe8dc;
+            position: relative;
+        }
+
+        .dish-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,107,53,0.1), rgba(255,69,0,0.1));
+            opacity: 0;
+            transition: opacity 0.4s;
+            z-index: 1;
+        }
+
+        .dish-item:hover::before {
+            opacity: 1;
+        }
+
+        .dish-item::after {
+            content: '🛒 Add to Cart';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff4500 100%);
+            color: white;
+            padding: 0.7rem 1.3rem;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            opacity: 0;
+            transform: translateY(-10px) scale(0.9);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 10;
+            box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+        }
+
+        .dish-item:hover::after {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .dish-item:hover {
+            transform: translateY(-18px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(255, 69, 0, 0.3);
+            border-color: #ff6b35;
+        }
+
+        .dish-image-wrapper {
+            width: 100%;
+            height: 280px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .dish-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .dish-item:hover .dish-image {
+            transform: scale(1.2) rotate(2deg);
+        }
+
+        .dish-info {
+            padding: 2.2rem 1.8rem;
+            background: linear-gradient(to bottom, #fff 0%, #fff5f0 100%);
+            transition: all 0.4s;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .dish-item:hover .dish-info {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff4500 100%);
+        }
+
+        .dish-info h4 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #ff4500;
+            transition: color 0.3s;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .dish-item:hover .dish-info h4 {
+            color: white;
+        }
+
+        .dish-info p {
+            font-size: 1.05rem;
+            color: #666;
+            transition: color 0.3s;
+            line-height: 1.7;
+            font-weight: 400;
+        }
+
+        .dish-item:hover .dish-info p {
+            color: rgba(255,255,255,0.98);
+        }
+
+        /* Contact Section */
+        .contact {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff4500 100%);
+            color: white;
+            padding: 6rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.05) 10px,
+                rgba(255,255,255,0.05) 20px
+            );
+            animation: slidePattern 20s linear infinite;
+        }
+
+        @keyframes slidePattern {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(20px); }
+        }
+
+        .contact h2 {
+            font-size: 3.5rem;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 1;
+            animation: bounceIn 1.2s;
+            font-weight: 800;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .contact-info {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .contact a {
+            color: white;
+            text-decoration: none;
+            border-bottom: 3px solid white;
+            transition: all 0.4s;
+            padding: 0.7rem 1.5rem;
+            display: inline-block;
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+
+        .contact a:hover {
+            background: rgba(255,255,255,0.25);
+            border-radius: 10px;
+            transform: scale(1.12);
+            border-bottom-color: transparent;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Footer */
+        footer {
+            background: #1a1a1a;
+            color: white;
+            text-align: center;
+            padding: 3rem;
+        }
+
+        footer p {
+            margin: 0.8rem 0;
+            font-size: 1.05rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-content p {
+                font-size: 1.3rem;
+            }
+
+            nav ul {
+                gap: 1.5rem;
+            }
+
+            .dishes {
+                grid-template-columns: 1fr;
+            }
+
+            .about h2, .cuisines h2, .contact h2 {
+                font-size: 2.5rem;
+            }
+
+            .cuisine-header h3 {
+                font-size: 2rem;
+            }
+
+            .dish-image-wrapper {
+                height: 220px;
+            }
+
+            .cart-button {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#menu">Menu</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Cart Button -->
+    <button class="cart-button" onclick="toggleCart()">
+        🛒
+        <span class="cart-count" id="cartCount">0</span>
+    </button>
+
+    <!-- Cart Modal -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h2>🛒 Your Cart</h2>
+                <button class="close-cart" onclick="toggleCart()">×</button>
+            </div>
+            <div class="cart-items" id="cartItems">
+                <div class="empty-cart">Your cart is empty. Add some delicious dishes!</div>
+            </div>
+            <div class="cart-footer">
+                <button class="send-order-btn" id="sendOrderBtn" onclick="sendOrder()" disabled>
+                    📧 Send Order via Email
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Global Flavors Restaurant</h1>
+            <p>Explore the flavors of the world under one roof</p>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <h2>About Us</h2>
+        <p>Welcome to Global Flavors, where culinary traditions from across the world come together in perfect harmony. From the spicy delights of Kerala to the aromatic wonders of Arabic cuisine, we bring you an authentic taste experience that celebrates diversity. Our expert chefs use traditional recipes and the finest ingredients to create memorable dining experiences for every palate.</p>
+    </section>
+
+    <!-- Cuisines Section -->
+    <section id="menu" class="cuisines">
+        <h2>Our Cuisines</h2>
+
+        <!-- Kerala Cuisine -->
+        <div class="cuisine-card">
+            <div class="cuisine-header">
+                <h3>🌴 Kerala Cuisine</h3>
+            </div>
+            <div class="cuisine-content">
+                <p>Experience the authentic flavors of God's Own Country with our spicy, coconut-based dishes that capture the essence of Kerala's rich culinary heritage.</p>
+                <div class="dishes">
+                    <div class="dish-item" onclick="addToCart('Kerala Sadya', 'Kerala Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1626074353765-517a681e40be?w=600&q=80" alt="Kerala Sadya" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Kerala Sadya</h4>
+                            <p>Traditional vegetarian feast on banana leaf with sambar, avial, and payasam</p>
+                        </div>
+                    </div>
+                    <div class="dish-item" onclick="addToCart('Appam with Stew', 'Kerala Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=600&q=80" alt="Appam" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Appam with Stew</h4>
+                            <p>Soft, fluffy rice pancakes with aromatic vegetable or chicken stew</p>
+                        </div>
+                    </div>
+                    <div class="dish-item" onclick="addToCart('Kerala Fish Curry', 'Kerala Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=600&q=80" alt="Kerala Fish Curry" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Kerala Fish Curry</h4>
+                            <p>Tangy and spicy fish curry with coconut, tamarind, and curry leaves</p>
+                        </div>
+                    </div>
+                    <div class="dish-item" onclick="addToCart('Puttu & Kadala Curry', 'Kerala Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=600&q=80" alt="Puttu" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Puttu & Kadala Curry</h4>
+                            <p>Steamed rice cake cylinders with spiced black chickpea curry</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tamil Nadu Cuisine -->
+        <div class="cuisine-card">
+            <div class="cuisine-header">
+                <h3>🍚 Tamil Nadu Cuisine</h3>
+            </div>
+            <div class="cuisine-content">
+                <p>Savor the rich rice-based traditions of Tamil Nadu, featuring perfectly fermented batters and aromatic spice blends that define South Indian cuisine.</p>
+                <div class="dishes">
+                    <div class="dish-item" onclick="addToCart('Idli with Sambar', 'Tamil Nadu Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&q=80" alt="Idli" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Idli with Sambar</h4>
+                            <p>Fluffy steamed rice cakes served with lentil stew and coconut chutney</p>
+                        </div>
+                    </div>
+                    <div class="dish-item" onclick="addToCart('Masala Dosa', 'Tamil Nadu Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1694241264768-e468f58d3ffd?w=600&q=80" alt="Dosa" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Masala Dosa</h4>
+                            <p>Crispy rice crepe filled with spiced potato masala and chutney</p>
+                        </div>
+                    </div>
+                    <div class="dish-item" onclick="addToCart('Sambar & Vada', 'Tamil Nadu Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1630383249896-424e482df921?w=600&q=80" alt="Sambar Vada" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Sambar & Vada</h4>
+                            <p>Tangy lentil stew with vegetables and crispy lentil donuts</p>
+                        </div>
+                    </div>
+                    <div class="dish-item" onclick="addToCart('Chettinad Chicken', 'Tamil Nadu Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&q=80" alt="Chettinad Chicken" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Chettinad Chicken</h4>
+                            <p>Spicy aromatic chicken curry with roasted spices and coconut</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Arabic Cuisine -->
+        <div class="cuisine-card">
+            <div class="cuisine-header">
+                <h3>🌙 Arabic Cuisine</h3>
+            </div>
+            <div class="cuisine-content">
+                <p>Journey through the Middle East with our authentic Arabic dishes, featuring aromatic spices, tender meats, and time-honored cooking techniques.</p>
+                <div class="dishes">
+                    <div class="dish-item" onclick="addToCart('Hummus Platter', 'Arabic Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1571096853555-fa16c7a55b1e?w=600&q=80" alt="Hummus" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Hummus Platter</h4>
+                            <p>Creamy chickpea dip with tahini, olive oil, and warm pita bread</p>
+                        </div>
+                    </div>
+                    <div class="dish-item" onclick="addToCart('Chicken Shawarma', 'Arabic Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=600&q=80" alt="Shawarma" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Chicken Shawarma</h4>
+                            <p>Marinated grilled chicken wrapped in flatbread with garlic sauce</p>
+                        </div>
+                    </div>
+                    <div class="dish-item" onclick="addToCart('Falafel Wrap', 'Arabic Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1593252719534-7b28a0fe696e?w=600&q=80" alt="Falafel" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Falafel Wrap</h4>
+                            <p>Crispy golden chickpea fritters with tahini and fresh vegetables</p>
+                        </div>
+                    </div>
+                    <div class="dish-item" onclick="addToCart('Mandi Rice', 'Arabic Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&q=80" alt="Mandi Rice" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Mandi Rice</h4>
+                            <p>Fragrant basmati rice with tender meat, aromatic spices, and nuts</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chinese Cuisine -->
+        <div class="cuisine-card">
+            <div class="cuisine-header">
+                <h3>🥢 Chinese Cuisine</h3>
+            </div>
+            <div class="cuisine-content">
+                <p>Discover the bold flavors and perfect balance of Chinese cooking, from stir-fried noodles to crispy delights that please every palate.</p>
+                <div class="dishes">
+                    <div class="dish-item" onclick="addToCart('Hakka Noodles', 'Chinese Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1585032226651-759b368d7246?w=600&q=80" alt="Hakka Noodles" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Hakka Noodles</h4>
+                            <p>Stir-fried noodles with crisp vegetables, soy sauce, and spices</p>
+                        </div>
+                    </div>
+                    <div class="dish-item" onclick="addToCart('Veg Manchurian', 'Chinese Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1626804475297-41608ea09aeb?w=600&q=80" alt="Manchurian" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Veg Manchurian</h4>
+                            <p>Crispy vegetable balls tossed in tangy Indo-Chinese sauce</p>
+                        </div>
+                    </div>
+                    <div class="dish-item" onclick="addToCart('Sweet & Sour Chicken', 'Chinese Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1617093727343-374698b1b08d?w=600&q=80" alt="Sweet and Sour Chicken" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Sweet & Sour Chicken</h4>
+                            <p>Crispy fried chicken in sweet and tangy pineapple sauce</p>
+                        </div>
+                    </div>
+                    <div class="dish-item" onclick="addToCart('Special Fried Rice', 'Chinese Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=600&q=80" alt="Fried Rice" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Special Fried Rice</h4>
+                            <p>Wok-tossed rice with eggs, vegetables, and savory seasonings</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- North Indian Cuisine -->
+        <div class="cuisine-card">
+            <div class="cuisine-header">
+                <h3>🍛 North Indian Cuisine</h3>
+            </div>
+            <div class="cuisine-content">
+                <p>Indulge in the rich, creamy gravies and tandoor-cooked specialties that make North Indian cuisine a global favorite.</p>
+                <div class="dishes">
+                    <div class="dish-item" onclick="addToCart('Butter Chicken', 'North Indian Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&q=80" alt="Butter Chicken" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Butter Chicken</h4>
+                            <p>Tender chicken in rich creamy tomato gravy with aromatic spices</p>
+                        </div>
+                    </div>
+                    <div class="dish-item" onclick="addToCart('Paneer Tikka', 'North Indian Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=600&q=80" alt="Paneer Tikka" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Paneer Tikka</h4>
+                            <p>Grilled cottage cheese marinated in yogurt and Indian spices</p>
+                        </div>
+                    </div>
+                    <div class="dish-item" onclick="addToCart('Rogan Josh', 'North Indian Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=600&q=80" alt="Rogan Josh" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Rogan Josh</h4>
+                            <p>Aromatic Kashmiri lamb curry with yogurt and traditional spices</p>
+                        </div>
+                    </div>
+                    <div class="dish-item" onclick="addToCart('Butter Naan', 'North Indian Cuisine')">
+                        <div class="dish-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?w=600&q=80" alt="Butter Naan" class="dish-image">
+                        </div>
+                        <div class="dish-info">
+                            <h4>Butter Naan</h4>
+                            <p>Soft tandoor-baked flatbread brushed with butter and garlic</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <h2>Contact Us</h2>
+        <div class="contact-info">
+            <p>📧 Email: <a href="mailto:contactcodence@gmail.com">contactcodence@gmail.com</a></p>
+            <p>We'd love to hear from you and serve you the best flavors!</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Global Flavors Restaurant. All rights reserved.</p>
+        <p>📧 contactcodence@gmail.com</p>
+    </footer>
+
+    <script>
+        let cart = {};
+
+        function addToCart(dishName, cuisine) {
+            if (cart[dishName]) {
+                cart[dishName].quantity += 1;
+            } else {
+                cart[dishName] = {
+                    name: dishName,
+                    cuisine: cuisine,
+                    quantity: 1
+                };
+            }
+            updateCart();
+        }
+
+        function removeFromCart(dishName) {
+            delete cart[dishName];
+            updateCart();
+        }
+
+        function updateQuantity(dishName, change) {
+            if (cart[dishName]) {
+                cart[dishName].quantity += change;
+                if (cart[dishName].quantity <= 0) {
+                    delete cart[dishName];
+                }
+                updateCart();
+            }
+        }
+
+        function updateCart() {
+            const cartItemsDiv = document.getElementById('cartItems');
+            const cartCount = document.getElementById('cartCount');
+            const sendOrderBtn = document.getElementById('sendOrderBtn');
+            
+            const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+
+            if (totalItems === 0) {
+                cartItemsDiv.innerHTML = '<div class="empty-cart">Your cart is empty. Add some delicious dishes!</div>';
+                sendOrderBtn.disabled = true;
+            } else {
+                let html = '';
+                for (let dishName in cart) {
+                    const item = cart[dishName];
+                    html += `
+                        <div class="cart-item">
+                            <div class="cart-item-info">
+                                <h4>${item.name}</h4>
+                                <p style="color: #999; font-size: 0.9rem;">${item.cuisine}</p>
+                            </div>
+                            <div class="cart-item-quantity">
+                                <button class="qty-btn" onclick="updateQuantity('${dishName}', -1)">-</button>
+                                <span class="qty-display">${item.quantity}</span>
+                                <button class="qty-btn" onclick="updateQuantity('${dishName}', 1)">+</button>
+                                <button class="remove-item" onclick="removeFromCart('${dishName}')">Remove</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                cartItemsDiv.innerHTML = html;
+                sendOrderBtn.disabled = false;
+            }
+        }
+
+        function toggleCart() {
+            const modal = document.getElementById('cartModal');
+            modal.classList.toggle('active');
+        }
+
+        function sendOrder() {
+            if (Object.keys(cart).length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+
+            let orderDetails = 'Hello Global Flavors Restaurant,\n\nI would like to place the following order:\n\n';
+            orderDetails += '=' .repeat(50) + '\n';
+            orderDetails += 'ORDER DETAILS\n';
+            orderDetails += '=' .repeat(50) + '\n\n';
+
+            for (let dishName in cart) {
+                const item = cart[dishName];
+                orderDetails += `${item.quantity}x ${item.name} (${item.cuisine})\n`;
+            }
+
+            const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+            orderDetails += '\n' + '=' .repeat(50) + '\n';
+            orderDetails += `TOTAL ITEMS: ${totalItems}\n`;
+            orderDetails += '=' .repeat(50) + '\n\n';
+            orderDetails += 'Please provide:\n';
+            orderDetails += '- Pricing details\n';
+            orderDetails += '- Delivery/Pickup options\n';
+            orderDetails += '- Estimated preparation time\n';
+            orderDetails += '- Payment methods\n\n';
+            orderDetails += 'Thank you!\n\nBest regards';
+
+            const subject = encodeURIComponent('🍽️ Food Order Request - ' + totalItems + ' Items');
+            const body = encodeURIComponent(orderDetails);
+            
+            window.location.href = 'mailto:contactcodence@gmail.com?subject=' + subject + '&body=' + body;
+        }
+
+        // Close cart when clicking outside
+        document.getElementById('cartModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                toggleCart();
+            }
+        });
+    </script>
+</body>
+</html>
